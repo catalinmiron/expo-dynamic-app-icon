@@ -78,6 +78,7 @@ const withIconAndroidManifest = (config, { icons }) => {
                         "android:enabled": "false",
                         "android:exported": "true",
                         "android:icon": `@mipmap/${iconName}`,
+                        "android:roundIcon": `@mipmap/${iconName}_round`,
                         "android:targetActivity": ".MainActivity",
                     },
                     "intent-filter": [
@@ -127,6 +128,7 @@ const withIconAndroidImages = (config, { icons }) => {
                     const outputPath = path_1.default.join(androidResPath, androidFolderNames[i]);
                     for (const [name, { image }] of Object.entries(icons)) {
                         const fileName = `${name}.png`;
+                        const roundedFileName = `${name}_round.png`;
                         const { source } = await (0, image_utils_1.generateImageAsync)({
                             projectRoot: config.modRequest.projectRoot,
                             cacheType: "react-native-dynamic-app-icon",
@@ -134,13 +136,26 @@ const withIconAndroidImages = (config, { icons }) => {
                             name: fileName,
                             src: image,
                             // removeTransparency: true,
-                            backgroundColor: "#ffffff",
+                            backgroundColor: "#FFFFFF",
                             resizeMode: "cover",
                             width: size,
                             height: size,
-                            borderRadius: size / 2,
                         });
                         await fs_1.default.promises.writeFile(path_1.default.join(outputPath, fileName), source);
+                        const { source: rounded, name: iconName } = await (0, image_utils_1.generateImageAsync)({
+                            projectRoot: config.modRequest.projectRoot,
+                            cacheType: "react-native-dynamic-app-icon",
+                        }, {
+                            name: roundedFileName,
+                            src: image,
+                            // removeTransparency: true,
+                            backgroundColor: "transparent",
+                            resizeMode: "cover",
+                            width: size,
+                            height: size,
+                            borderRadius: size * 0.5,
+                        });
+                        await fs_1.default.promises.writeFile(path_1.default.join(outputPath, roundedFileName), rounded);
                     }
                 }
                 // for (const size of ) {

@@ -116,6 +116,7 @@ const withIconAndroidManifest: ConfigPlugin<Props> = (config, { icons }) => {
             "android:enabled": "false",
             "android:exported": "true",
             "android:icon": `@mipmap/${iconName}`,
+            "android:roundIcon": `@mipmap/${iconName}_round`,
             "android:targetActivity": ".MainActivity",
           },
           "intent-filter": [
@@ -183,6 +184,7 @@ const withIconAndroidImages: ConfigPlugin<Props> = (config, { icons }) => {
 
           for (const [name, { image }] of Object.entries(icons)) {
             const fileName = `${name}.png`;
+            const roundedFileName = `${name}_round.png`;
 
             const { source } = await generateImageAsync(
               {
@@ -193,16 +195,37 @@ const withIconAndroidImages: ConfigPlugin<Props> = (config, { icons }) => {
                 name: fileName,
                 src: image,
                 // removeTransparency: true,
-                backgroundColor: "#ffffff",
+                backgroundColor: "#FFFFFF",
                 resizeMode: "cover",
                 width: size,
                 height: size,
-                borderRadius: size / 2,
               }
             );
             await fs.promises.writeFile(
               path.join(outputPath, fileName),
               source
+            );
+            const { source: rounded, name: iconName } =
+              await generateImageAsync(
+                {
+                  projectRoot: config.modRequest.projectRoot,
+                  cacheType: "react-native-dynamic-app-icon",
+                },
+                {
+                  name: roundedFileName,
+                  src: image,
+                  // removeTransparency: true,
+                  backgroundColor: "transparent",
+                  resizeMode: "cover",
+                  width: size,
+                  height: size,
+                  borderRadius: size * 0.5,
+                }
+              );
+
+            await fs.promises.writeFile(
+              path.join(outputPath, roundedFileName),
+              rounded
             );
           }
         }
