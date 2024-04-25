@@ -9,7 +9,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 // @ts-ignore
 const pbxFile_1 = __importDefault(require("xcode/lib/pbxFile"));
-const { getMainApplicationOrThrow, getMainActivityOrThrow, } = config_plugins_1.AndroidConfig.Manifest;
+const { getMainApplicationOrThrow, getMainActivityOrThrow } = config_plugins_1.AndroidConfig.Manifest;
 const androidFolderPath = ["app", "src", "main", "res"];
 const androidFolderNames = [
     "mipmap-hdpi",
@@ -29,10 +29,10 @@ function arrayToImages(images) {
 }
 const findIconsForPlatform = (icons, platform) => {
     return Object.keys(icons)
-        .filter(key => {
+        .filter((key) => {
         const icon = icons[key];
         if (icon.platforms) {
-            return icon['platforms'].includes(platform);
+            return icon["platforms"].includes(platform);
         }
         return true;
     })
@@ -80,14 +80,18 @@ const withIconAndroidManifest = (config, { icons }) => {
                         "android:icon": `@mipmap/${iconName}`,
                         "android:targetActivity": ".MainActivity",
                     },
-                    "intent-filter": [...mainActivity["intent-filter"] || [
+                    "intent-filter": [
+                        ...(mainActivity["intent-filter"] || [
                             {
-                                action: [{ $: { "android:name": "android.intent.action.MAIN" } }],
+                                action: [
+                                    { $: { "android:name": "android.intent.action.MAIN" } },
+                                ],
                                 category: [
                                     { $: { "android:name": "android.intent.category.LAUNCHER" } },
                                 ],
                             },
-                        ]]
+                        ]),
+                    ],
                 })),
             ];
         }
@@ -134,6 +138,7 @@ const withIconAndroidImages = (config, { icons }) => {
                             resizeMode: "cover",
                             width: size,
                             height: size,
+                            borderRadius: size / 2,
                         });
                         await fs_1.default.promises.writeFile(path_1.default.join(outputPath, fileName), source);
                     }

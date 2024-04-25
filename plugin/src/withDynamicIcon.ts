@@ -15,10 +15,8 @@ import path from "path";
 // @ts-ignore
 import pbxFile from "xcode/lib/pbxFile";
 
-const {
-  getMainApplicationOrThrow,
-  getMainActivityOrThrow,
-} = AndroidConfig.Manifest;
+const { getMainApplicationOrThrow, getMainActivityOrThrow } =
+  AndroidConfig.Manifest;
 
 const androidFolderPath = ["app", "src", "main", "res"];
 const androidFolderNames = [
@@ -38,11 +36,11 @@ const iosScales = [2, 3, ipad152Scale, ipad167Scale];
 
 type Platform = "ios" | "android";
 
-type Icon = { 
-  image: string; 
-  prerendered?: boolean, 
-  platforms?: Platform[]
-}
+type Icon = {
+  image: string;
+  prerendered?: boolean;
+  platforms?: Platform[];
+};
 
 type IconSet = Record<string, Icon>;
 
@@ -59,15 +57,15 @@ function arrayToImages(images: string[]) {
 
 const findIconsForPlatform = (icons: IconSet, platform: Platform) => {
   return Object.keys(icons)
-    .filter(key => {
+    .filter((key) => {
       const icon = icons[key];
       if (icon.platforms) {
-        return icon['platforms'].includes(platform);
+        return icon["platforms"].includes(platform);
       }
       return true;
     })
     .reduce((prev, curr) => ({ ...prev, [curr]: icons[curr] }), {});
-}
+};
 
 const withDynamicIcon: ConfigPlugin<string[] | IconSet | void> = (
   config,
@@ -95,7 +93,7 @@ const withDynamicIcon: ConfigPlugin<string[] | IconSet | void> = (
   if (androidIconsLength > 0) {
     config = withIconAndroidManifest(config, { icons: androidIcons });
     config = withIconAndroidImages(config, { icons: androidIcons });
-  } 
+  }
 
   return config;
 };
@@ -120,14 +118,18 @@ const withIconAndroidManifest: ConfigPlugin<Props> = (config, { icons }) => {
             "android:icon": `@mipmap/${iconName}`,
             "android:targetActivity": ".MainActivity",
           },
-          "intent-filter": [...mainActivity["intent-filter"] || [
-            {
-              action: [{ $: { "android:name": "android.intent.action.MAIN" } }],
-              category: [
-                { $: { "android:name": "android.intent.category.LAUNCHER" } },
-              ],
-            },
-          ]]
+          "intent-filter": [
+            ...(mainActivity["intent-filter"] || [
+              {
+                action: [
+                  { $: { "android:name": "android.intent.action.MAIN" } },
+                ],
+                category: [
+                  { $: { "android:name": "android.intent.category.LAUNCHER" } },
+                ],
+              },
+            ]),
+          ],
         })),
       ];
     }
@@ -195,6 +197,7 @@ const withIconAndroidImages: ConfigPlugin<Props> = (config, { icons }) => {
                 resizeMode: "cover",
                 width: size,
                 height: size,
+                borderRadius: size / 2,
               }
             );
             await fs.promises.writeFile(
@@ -224,14 +227,13 @@ const withIconAndroidImages: ConfigPlugin<Props> = (config, { icons }) => {
 
 // for ios
 function getIconName(name: string, size: number, scale?: number) {
-  
   const fileName = `${name}-Icon-$${size}x${size}`;
 
   if (scale != null) {
-    if(scale == ipad152Scale){
+    if (scale == ipad152Scale) {
       return `${fileName}@2x~ipad.png`;
     }
-    if(scale == ipad167Scale){
+    if (scale == ipad167Scale) {
       return `${fileName}@3x~ipad.png`;
     }
     return `${fileName}@${scale}x.png`;
